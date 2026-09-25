@@ -903,7 +903,7 @@ function buildCore() {
 
 /* ================= assemble sub-stages ================= */
 function subStage(id, builder, cam, target) {
-  const st = makeStage(id, { cam, target, spin:1.0, min:2.4, max:12 });
+  const st = makeStage(id, { bloom:true, cam, target, spin:1.0, min:2.4, max:12 });
   addGround(st.scene, 10, 0.35);
   const b = builder();
   st.scene.add(b.group);
