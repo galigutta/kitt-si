@@ -411,6 +411,7 @@ function makeStage(canvasId, o = {}) {
 
   const v = { canvas, wrap, renderer, scene, camera, controls, composer,
     visible:false, update:null, camTween:null, hotspots:null,
+    orbitEnabled: !REDUCED && (o.spin ?? 0.9) > 0,
     render() {
       if (this.composer) this.composer.render();
       else this.renderer.render(this.scene, this.camera);
@@ -423,6 +424,7 @@ function makeStage(canvasId, o = {}) {
       if (composer) composer.setSize(w, h);
     },
     flyTo(pos, tgt, dur = 1.6) {
+      this.controls.autoRotate = false;
       this.camTween = { p0:this.camera.position.clone(), p1:new THREE.Vector3(...pos),
                         t0:this.controls.target.clone(), t1:new THREE.Vector3(...tgt), t:0, dur };
     } };
@@ -536,7 +538,7 @@ document.querySelectorAll('.cambtn').forEach(b => {
     document.querySelectorAll('.cambtn').forEach(x => x.classList.remove('on'));
     b.classList.add('on');
     const c = CAMS[b.dataset.cam];
-    if (c) hero.flyTo(c.p, c.t, 1.4);
+    if (c) { hero.orbitEnabled = b.dataset.cam !== 'top' && !REDUCED; hero.flyTo(c.p, c.t, 1.4); }
   });
 });
 
@@ -574,6 +576,23 @@ function setLoad(frac, txt) {
 /* ================= sub-assemblies ================= */
 function anchor(parent, x, y, z) {
   const o = new THREE.Object3D(); o.position.set(x, y, z); parent.add(o); return o;
+}
+let _glowTex = null;
+function glowTex() {
+  if (_glowTex) return _glowTex;
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.35, 'rgba(255,255,255,.35)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+  _glowTex = new THREE.CanvasTexture(c); return _glowTex;
+}
+function addGlow(parent, color, size, x, y, z, opacity = 0.5) {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTex(), color,
+    transparent:true, opacity, blending:THREE.AdditiveBlending, depthWrite:false }));
+  s.scale.set(size, size, 1); s.position.set(x, y, z); parent.add(s); return s;
 }
 function addHotspots(stage, list) {
   const layer = document.createElement('div');
@@ -613,9 +632,10 @@ function buildBattery() {
     d.updateMatrix(); cells.setMatrixAt(i++, d.matrix);
   }
   g.add(cells);
-  const busMat = M.red.clone();
+  const busMats = [];
   for (let iz = 0; iz < 6; iz++) {
-    const b = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.025, 0.05), busMat);
+    const bm = M.red.clone(); busMats.push(bm);
+    const b = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.025, 0.05), bm);
     b.position.set(0, 0.30, -0.975 + iz * 0.39); g.add(b);
   }
   const skirt = new THREE.Mesh(new THREE.BoxGeometry(4.64, 0.04, 2.14), M.red);
@@ -629,6 +649,17 @@ function buildBattery() {
     .forEach(([x, z]) => {
       const b = new THREE.Mesh(boltGeo, M.alloy); b.position.set(x, 0.15, z); g.add(b);
     });
+  // module dividers
+  [-0.77, 0.77].forEach(x => {
+    const dv = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.20, 2.0), M.dark);
+    dv.position.set(x, 0.20, 0); g.add(dv);
+  });
+  // energy scan curtain sweeping the pack
+  const scanMat = new THREE.MeshBasicMaterial({ color:0xff7a2a, transparent:true, opacity:0.22,
+    blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+  const scan = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.5), scanMat);
+  scan.rotation.y = Math.PI / 2; scan.position.y = 0.30; g.add(scan);
+  const scanGlow = addGlow(g, 0xff7a2a, 1.2, 0, 0.42, 0, 0.35);
   const hotspots = [
     { obj: anchor(g, 0, 0.42, 0), label: '4,680 CELLS · NMC 811' },
     { obj: anchor(g, 1.6, 0.36, 0.39), label: '800V COPPER BUSBAR' },
@@ -636,25 +667,39 @@ function buildBattery() {
   ];
   return { group: g, hotspots, update(t) {
     g.rotation.y = t * 0.22;
-    busMat.emissiveIntensity = 1.7 + Math.sin(t * 3) * 0.7;
+    busMats.forEach((bm, iz) => { bm.emissiveIntensity = 1.1 + 1.4 * Math.max(0, Math.sin(t * 2.6 - iz * 0.85)); });
+    const sx = -2.3 + ((t * 0.55) % 1) * 4.6;
+    scan.position.x = sx; scanGlow.position.x = sx;
+    scanMat.opacity = 0.16 + 0.12 * Math.sin(t * 5);
   }};
 }
 
 function buildMotors() {
   const g = new THREE.Group();
   const spinners = [];
+  const coilMats = [];
   function motor(x, r, len) {
     const grp = new THREE.Group();
     const hg = new THREE.CylinderGeometry(r, r, len, 28); hg.rotateX(Math.PI / 2);
     grp.add(new THREE.Mesh(hg, M.dark));
+    const coilMat = M.copper.clone(); coilMats.push(coilMat);
     [-1, 1].forEach(s => {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 0.72, r * 0.17, 12, 30), M.copper);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(r * 0.72, r * 0.17, 12, 30), coilMat);
       ring.position.z = s * len * 0.40; grp.add(ring);
     });
+    for (let f = 0; f < 4; f++) {
+      const fin = new THREE.Mesh(new THREE.TorusGeometry(r + 0.035, 0.014, 8, 40), M.dark);
+      fin.position.z = -len * 0.3 + f * len * 0.2; grp.add(fin);
+    }
     const stripe = new THREE.Mesh(new THREE.TorusGeometry(r + 0.006, 0.02, 8, 44), M.red);
     grp.add(stripe);
+    [-1, 1].forEach(s => {
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55, r * 0.55, 0.06, 24), M.alloy);
+      cap.rotation.x = Math.PI / 2; cap.position.z = s * (len / 2 + 0.03); grp.add(cap);
+    });
     const sg = new THREE.CylinderGeometry(r * 0.16, r * 0.16, len + 1.7, 14); sg.rotateX(Math.PI / 2);
     const shaft = new THREE.Mesh(sg, M.alloy); grp.add(shaft); spinners.push(shaft);
+    addGlow(grp, 0xff7a2a, r * 3.4, 0, 0, 0, 0.26);
     grp.position.x = x; g.add(grp);
   }
   motor(-1.30, 0.42, 1.0);
@@ -670,14 +715,28 @@ function buildMotors() {
     arm.position.set(0, -0.28, s * 0.55); g.add(arm);
   });
   const hvMat = new THREE.MeshStandardMaterial({ color:0xcc4400, roughness:0.6 });
+  const cableCurves = [];
   function hvCable(pts) {
     const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)));
+    cableCurves.push(curve);
     return new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.035, 8), hvMat);
   }
   g.add(hvCable([[0.35, 0.12, 0.25], [0.8, 0.42, 0.45], [1.35, 0.25, 0.3]]));
   g.add(hvCable([[0.35, 0.12, -0.25], [0.8, 0.42, -0.45], [1.35, 0.25, -0.3]]));
   g.add(hvCable([[-0.35, 0.12, 0.25], [-0.8, 0.42, 0.45], [-1.3, 0.3, 0.3]]));
   g.add(hvCable([[-0.35, 0.12, -0.25], [-0.8, 0.42, -0.45], [-1.3, 0.3, -0.3]]));
+  // energy packets riding the HV cables
+  const packets = [];
+  const pktGeo = new THREE.SphereGeometry(0.045, 10, 8);
+  const pktMat = new THREE.MeshBasicMaterial({ color:0xffb03a });
+  cableCurves.forEach((c, i) => {
+    const p = new THREE.Mesh(pktGeo, pktMat); g.add(p);
+    packets.push({ mesh:p, curve:c, off:i * 0.37 });
+  });
+  // inverter status LED
+  const ledMat = new THREE.MeshBasicMaterial({ color:0x51ff7a });
+  const led = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), ledMat);
+  led.position.set(0.02, 0.24, 0.3); g.add(led);
   const hotspots = [
     { obj: anchor(g, -1.3, 0.58, 0), label: 'REAR · 720 HP' },
     { obj: anchor(g, 1.35, 0.44, 0), label: 'FRONT · 300 HP' },
@@ -686,6 +745,9 @@ function buildMotors() {
   return { group: g, hotspots, update(t, dt) {
     spinners.forEach(s => s.rotation.z += dt * 9);
     g.rotation.y = Math.sin(t * 0.18) * 0.4;
+    coilMats.forEach((m, i) => { m.emissiveIntensity = 0.5 + 0.7 * Math.max(0, Math.sin(t * 4 - i * 1.7)); });
+    packets.forEach(pk => { pk.mesh.position.copy(pk.curve.getPointAt((t * 0.45 + pk.off) % 1)); });
+    ledMat.color.setHex(Math.sin(t * 6) > 0 ? 0x51ff7a : 0x0d3a1c);
   }};
 }
 
@@ -721,6 +783,21 @@ function buildSensors() {
     const cone = new THREE.Mesh(cg, coneMat);
     cone.position.set(1.75, 0.30, z); g.add(cone);
   });
+  // rotating radar sweep wedge
+  const sweepMat = new THREE.MeshBasicMaterial({ color:RED, transparent:true, opacity:0.10,
+    blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+  const sweepG = new THREE.Group();
+  const sweep = new THREE.Mesh(new THREE.CircleGeometry(1.5, 24, 0, Math.PI / 5), sweepMat);
+  sweep.rotation.x = -Math.PI / 2; sweepG.add(sweep);
+  sweepG.position.y = 0.12; g.add(sweepG);
+  const puckGlow = addGlow(g, RED, 0.9, 0, 0.35, 0, 0.5);
+  // corner pod status LEDs
+  const podLeds = [];
+  [[0.85, 0.55], [0.85, -0.55], [-0.85, 0.55], [-0.85, -0.55]].forEach(([x, z]) => {
+    const lm = new THREE.MeshBasicMaterial({ color:0xffb03a });
+    const l = new THREE.Mesh(new THREE.SphereGeometry(0.028, 8, 6), lm);
+    l.position.set(x, 0.47, z); g.add(l); podLeds.push(lm);
+  });
   const hotspots = [
     { obj: anchor(g, 0, 0.5, 0), label: 'LIDAR · 200 M' },
     { obj: anchor(g, 1.3, 0.08, -0.55), label: '360° SWEEP' },
@@ -728,6 +805,10 @@ function buildSensors() {
   ];
   return { group: g, hotspots, update(t) {
     bar.rotation.y = t * 2.2;
+    sweepG.rotation.y = -t * 1.4;
+    coneMat.opacity = 0.07 + 0.05 * (0.5 + 0.5 * Math.sin(t * 2.2));
+    puckGlow.material.opacity = 0.35 + 0.25 * Math.sin(t * 3.1);
+    podLeds.forEach((lm, i) => lm.color.setHex(Math.sin(t * 4 + i * 1.9) > 0 ? 0xffb03a : 0x3a2408));
     rings.forEach((r, i) => {
       const p = (t * 0.45 + i / 3) % 1;
       const s = 0.25 + p;
@@ -764,6 +845,7 @@ function buildCore() {
     const a = i * Math.PI * 2 / 3;
     s.position.set(Math.cos(a) * 1.6, 0.1 * (i - 1), Math.sin(a) * 1.6);
     sats.add(s);
+    addGlow(sats, RED, 0.4, s.position.x, s.position.y, s.position.z, 0.5);
   }
   g.add(sats);
   const N = 140, pos = new Float32Array(N * 3);
@@ -779,6 +861,19 @@ function buildCore() {
     new THREE.PointsMaterial({ color:0xff5a5a, size:0.032, transparent:true, opacity:0.8 }));
   g.add(pts);
   const pl = new THREE.PointLight(RED, 40, 14, 2); g.add(pl);
+  // data packets riding the ring bus
+  const packets = [];
+  const pktGeo = new THREE.SphereGeometry(0.035, 10, 8);
+  const pktCols = [0xff4545, 0xffb03a];
+  rings.forEach((ring, ri) => {
+    const rr = ring.geometry.parameters.radius;
+    for (let k = 0; k < 4; k++) {
+      const p = new THREE.Mesh(pktGeo, new THREE.MeshBasicMaterial({ color: pktCols[(ri + k) % 2] }));
+      ring.add(p);
+      packets.push({ m:p, r:rr, sp:(ri ? -1 : 1) * (0.9 + k * 0.13), ph:k * Math.PI / 2 });
+    }
+  });
+  const coreGlow = addGlow(g, RED, 2.2, 0, 0, 0, 0.4);
   const hotspots = [
     { obj: anchor(g, 0, 0.8, 0), label: 'NEURAL CORE' },
     { obj: anchor(g, 1.18, 0.35, 0), label: 'REDUNDANT RING BUS' },
@@ -787,7 +882,13 @@ function buildCore() {
   return { group: g, hotspots, update(t) {
     const p = 1 + Math.sin(t * 2.4) * 0.035;
     core.scale.setScalar(p); wire.scale.setScalar(p * 1.02);
+    coreGlow.material.opacity = 0.30 + 0.18 * Math.sin(t * 2.4);
     rings[0].rotation.z = t * 0.7; rings[1].rotation.z = -t * 0.5;
+    rings.forEach((rg, i) => { rg.material.opacity = 0.5 + 0.25 * Math.sin(t * 2 + i * 2.1); });
+    packets.forEach(pk => {
+      const a = t * pk.sp + pk.ph;
+      pk.m.position.set(Math.cos(a) * pk.r, Math.sin(a) * pk.r, 0);
+    });
     sats.rotation.y = -t * 0.4;
     pts.rotation.y = t * 0.12;
     pl.intensity = 34 + Math.sin(t * 2.4) * 10;
@@ -840,7 +941,7 @@ if (REDUCED) {
         const e = easeInOut(Math.min(tw.t, 1));
         v.camera.position.lerpVectors(tw.p0, tw.p1, e);
         v.controls.target.lerpVectors(tw.t0, tw.t1, e);
-        if (tw.t >= 1) v.camTween = null;
+        if (tw.t >= 1) { v.camTween = null; v.controls.autoRotate = v.orbitEnabled; }
       }
       v.controls.update();
       if (v.update) v.update(t, dt);
