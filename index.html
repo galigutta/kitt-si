@@ -324,12 +324,25 @@
   bb.addEventListener('pointerdown', arm);
   addEventListener('pointerup', disarm);
   bb.addEventListener('pointerleave', disarm);
-  document.getElementById('reserveForm').addEventListener('submit', function(e){
+  document.getElementById('reserveForm').addEventListener('submit', async function(e){
     e.preventDefault();
     var em = document.getElementById('reserveEmail');
+    var btn = this.querySelector('button');
     if (!em.value || em.value.indexOf('@') < 0){ em.focus(); em.style.boxShadow = 'inset 0 0 0 1px var(--red)'; return; }
-    this.style.display = 'none';
-    document.getElementById('reserveDone').style.display = 'block';
+    btn.disabled = true; btn.textContent = '…';
+    try {
+      var r = await fetch('https://formsubmit.co/ajax/vamsir@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: em.value, _subject: 'kitt.si — reservation', _template: 'table', _captcha: 'false' })
+      });
+      if (!r.ok) throw new Error('bad status');
+      this.style.display = 'none';
+      document.getElementById('reserveDone').style.display = 'block';
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'RESERVE ▸';
+      em.style.boxShadow = 'inset 0 0 0 1px var(--red)';
+    }
   });
 })();
 </script>
