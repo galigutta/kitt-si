@@ -21,12 +21,21 @@
   .display{font-family:'Michroma',sans-serif;font-weight:400}
   .num{font-family:'Orbitron',sans-serif}
 
+  /* loader */
+  #loader{position:fixed;inset:0;z-index:200;background:#050507;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .8s ease}
+  #loader.done{opacity:0;pointer-events:none}
+  #loader .l-brand{font-family:'Michroma',sans-serif;font-size:34px;letter-spacing:.4em;padding-left:.4em}
+  #loader .l-brand i{font-style:normal;color:var(--red);animation:pulse 1.6s infinite}
+  #loader .l-bar{width:min(320px,60vw);height:2px;background:#1a1a20;overflow:hidden}
+  #loader .l-bar span{display:block;height:100%;width:0;background:var(--red);box-shadow:0 0 12px var(--red);transition:width .3s}
+  #loader .l-txt{font-size:10px;letter-spacing:.4em;color:var(--mut)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
   nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
       padding:20px 34px;transition:background .35s,padding .35s,border-color .35s;border-bottom:1px solid transparent}
   nav.scrolled{background:rgba(5,5,7,.82);backdrop-filter:blur(14px);padding:13px 34px;border-color:var(--line)}
   .brand{font-family:'Michroma',sans-serif;font-size:20px;letter-spacing:.28em;text-decoration:none;color:var(--txt);display:flex;align-items:center;gap:10px}
   .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red),0 0 30px var(--red-glow);animation:pulse 2.2s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
   .links{display:flex;gap:26px;align-items:center}
   .links a.nl{color:var(--mut);text-decoration:none;font-size:11px;letter-spacing:.14em;transition:color .25s}
   .links a.nl:hover{color:var(--txt)}
@@ -37,14 +46,20 @@
   .btn.solid:hover{box-shadow:0 0 34px var(--red-glow);background:#ff4545}
   @media(max-width:900px){.links a.nl{display:none}}
 
-  /* ---------- 3D stage ---------- */
   .gl-wrap{position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 50% 40%,#0a0a10 0%,#050507 70%)}
   .gl-wrap canvas{display:block;width:100%;height:100%}
   .gl-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;
     color:var(--mut);font-size:12px;letter-spacing:.2em;text-align:center;padding:20px}
   .gl-fallback .dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 14px var(--red);animation:pulse 2s infinite}
 
-  /* ---------- hero ---------- */
+  /* 3D hotspot annotations */
+  .hotspots{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+  .hotspot{position:absolute;top:0;left:0;display:flex;align-items:center;gap:9px;transition:opacity .3s;will-change:transform}
+  .hotspot .hdot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);flex:none}
+  .hotspot .hlabel{font-size:9px;letter-spacing:.26em;color:var(--txt);background:rgba(5,5,7,.72);border:1px solid var(--line);
+    padding:7px 11px;white-space:nowrap;backdrop-filter:blur(6px)}
+
+  /* hero */
   .hero{position:relative;height:100svh;min-height:640px}
   .hero .gl-wrap{position:absolute;inset:0}
   .hud{position:absolute;inset:0;z-index:2;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:110px 40px 34px}
@@ -58,19 +73,20 @@
   .hud-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
   .hud-bottom .hint{font-size:10px;letter-spacing:.34em;color:var(--mut)}
   .hud-bottom .hint b{color:var(--red);font-weight:400}
+  .cams{display:flex;gap:8px;pointer-events:auto;flex-wrap:wrap}
+  .cambtn{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.24em;color:var(--mut);background:rgba(5,5,7,.6);
+    border:1px solid var(--line);padding:10px 16px;cursor:pointer;backdrop-filter:blur(8px);transition:all .25s}
+  .cambtn:hover{color:var(--txt);border-color:var(--red-dim)}
+  .cambtn.on{color:var(--red);border-color:var(--red)}
   .chips{display:flex;gap:10px}
   .chip{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.18em;border:1px solid var(--line);background:rgba(5,5,7,.6);backdrop-filter:blur(8px);padding:10px 16px}
   .chip b{color:var(--red);font-weight:700}
-  .hud .btn{pointer-events:auto}
-  #explodeBtn.on{border-color:var(--red);color:var(--red);box-shadow:0 0 24px rgba(255,46,46,.25)}
 
-  /* ---------- ticker ---------- */
   .ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#08080b;overflow:hidden;white-space:nowrap;padding:14px 0}
   .ticker-track{display:inline-block;animation:tick 24s linear infinite;font-size:11px;letter-spacing:.34em;color:var(--mut)}
   .ticker-track b{color:var(--red);font-weight:400}
   @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-  /* ---------- asset sections ---------- */
   section.asset{max-width:1280px;margin:0 auto;padding:110px 34px 30px}
   .a-head{display:flex;align-items:baseline;gap:26px;margin-bottom:34px;flex-wrap:wrap}
   .a-num{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:.3em;color:var(--red);border:1px solid var(--red-dim);padding:9px 14px}
@@ -81,7 +97,6 @@
   .a-cap{display:flex;justify-content:space-between;margin-top:14px;font-size:10px;letter-spacing:.3em;color:var(--mut)}
   .a-cap b{color:var(--red);font-weight:400}
 
-  /* ---------- turbo ---------- */
   #boost{max-width:1280px;margin:0 auto;padding:110px 34px}
   .turbo{text-align:center;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 120%,rgba(255,46,46,.12),transparent 60%),var(--panel);
     padding:80px 30px;position:relative;overflow:hidden}
@@ -100,7 +115,6 @@
     background:repeating-linear-gradient(90deg,transparent 0 90px,rgba(255,46,46,.06) 90px 92px)}
   body.boosting .speedlines{opacity:1}
 
-  /* ---------- reserve ---------- */
   #reserve{max-width:1280px;margin:0 auto;padding:40px 34px 110px}
   .reserve-card{border:1px solid var(--line);background:linear-gradient(180deg,#0c0c11,#08080b);padding:64px 36px;text-align:center;position:relative;overflow:hidden}
   .reserve-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
@@ -134,6 +148,11 @@
 </script>
 </head>
 <body>
+<div id="loader">
+  <div class="l-brand">KITT<i>.</i></div>
+  <div class="l-bar"><span id="lfill"></span></div>
+  <div class="l-txt" id="ltxt">WARMING UP THE TURBINES</div>
+</div>
 <div class="speedlines"></div>
 <nav id="nav">
   <a class="brand" href="#top"><span class="dot"></span>KITT</a>
@@ -146,11 +165,10 @@
 </nav>
 
 <main id="top">
-<!-- ============ HERO / 3D CAR ============ -->
 <header class="hero">
   <div class="gl-wrap">
     <canvas id="gl-hero"></canvas>
-    <div class="gl-fallback"><span class="dot"></span><span>3D UNAVAILABLE — PLEASE USE A WEBGL BROWSER</span></div>
+    <div class="gl-fallback"><span class="dot"></span><span id="heroFallbackTxt">3D UNAVAILABLE — PLEASE USE A WEBGL BROWSER</span></div>
   </div>
   <div class="hud">
     <div class="hud-top">
@@ -160,7 +178,13 @@
     </div>
     <div class="hud-bottom">
       <div>
-        <button class="btn" id="explodeBtn">EXPLODED VIEW</button>
+        <div class="cams">
+          <button class="cambtn on" data-cam="hero34">¾ VIEW</button>
+          <button class="cambtn" data-cam="front">FRONT</button>
+          <button class="cambtn" data-cam="profile">PROFILE</button>
+          <button class="cambtn" data-cam="rear">REAR</button>
+          <button class="cambtn" data-cam="top">TOP</button>
+        </div>
         <div class="hint" style="margin-top:14px"><b>◉</b> DRAG TO ORBIT · SCROLL TO DIVE IN</div>
       </div>
       <div class="chips">
@@ -174,7 +198,6 @@
 
 <div class="ticker"><span class="ticker-track" id="ticker"></span></div>
 
-<!-- ============ 01 BATTERY ============ -->
 <section class="asset" id="a-battery">
   <div class="a-head reveal">
     <span class="a-num">01</span>
@@ -188,7 +211,6 @@
   <div class="a-cap"><span>4,680 CELLS · 800V ARCHITECTURE</span><span><b>◉</b> DRAG TO INSPECT</span></div>
 </section>
 
-<!-- ============ 02 MOTORS ============ -->
 <section class="asset" id="a-motors">
   <div class="a-head reveal">
     <span class="a-num">02</span>
@@ -202,7 +224,6 @@
   <div class="a-cap"><span>DUAL REAR + SINGLE FRONT · TORQUE VECTORING</span><span><b>◉</b> DRAG TO INSPECT</span></div>
 </section>
 
-<!-- ============ 03 SENSORS ============ -->
 <section class="asset" id="a-sensors">
   <div class="a-head reveal">
     <span class="a-num">03</span>
@@ -216,7 +237,6 @@
   <div class="a-cap"><span>LIDAR · RADAR · 11 CAMERAS · 360° COVERAGE</span><span><b>◉</b> DRAG TO INSPECT</span></div>
 </section>
 
-<!-- ============ 04 CORE ============ -->
 <section class="asset" id="a-core">
   <div class="a-head reveal">
     <span class="a-num">04</span>
@@ -230,7 +250,6 @@
   <div class="a-cap"><span>ONBOARD NEURAL CORE · ALWAYS LISTENING, NEVER WAITING</span><span><b>◉</b> DRAG TO INSPECT</span></div>
 </section>
 
-<!-- ============ TURBO ============ -->
 <section id="boost">
   <div class="turbo reveal">
     <div class="k">FIELD TEST</div>
@@ -241,7 +260,6 @@
   </div>
 </section>
 
-<!-- ============ RESERVE ============ -->
 <section id="reserve">
   <div class="reserve-card reveal">
     <h2>Be first.</h2>
@@ -260,21 +278,19 @@
   <span><span class="fdot"></span>KITT MOTOR COMPANY</span>
   <span>KINETIC INTELLIGENCE TOURING TECHNOLOGY</span>
   <span>© MMXXVI</span>
+  <span style="flex-basis:100%;text-align:center;opacity:.7">3D CONCEPT MODEL © 2024 DARMSTADT GRAPHICS GROUP GMBH (ERIC CHADWICK) · CC BY 4.0</span>
 </footer>
 <script>
 (function(){
   var nav = document.getElementById('nav');
   addEventListener('scroll', function(){ nav.classList.toggle('scrolled', scrollY > 40); }, {passive:true});
-
   var io = new IntersectionObserver(function(es){
     es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, {threshold:.1});
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
-
   var items = ['CELL SKATEBOARD <b>///</b>','TRI-MOTOR <b>///</b>','SENSOR ARRAY <b>///</b>','KITT.OS <b>///</b>','TURBO BOOST <b>///</b>','0\u201360 MPH \u00B7 2.9 S <b>///</b>'];
   var half = items.join('&nbsp;&nbsp;');
   document.getElementById('ticker').innerHTML = half + '&nbsp;&nbsp;' + half;
-
   var bb = document.getElementById('boostBtn'), fill = document.getElementById('boostFill'),
       bl = document.getElementById('boostLabel'), bh = document.getElementById('boostHint'),
       br = document.getElementById('boostRead'), holdT = null;
@@ -308,7 +324,6 @@
   bb.addEventListener('pointerdown', arm);
   addEventListener('pointerup', disarm);
   bb.addEventListener('pointerleave', disarm);
-
   document.getElementById('reserveForm').addEventListener('submit', function(e){
     e.preventDefault();
     var em = document.getElementById('reserveEmail');
@@ -321,24 +336,33 @@
 <script type="module">
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const RED = 0xff2e2e;
-let THREE, OrbitControls, RoomEnvironment, RoundedBoxGeometry;
+let THREE, OrbitControls, RoomEnvironment, RoundedBoxGeometry, GLTFLoader,
+    EffectComposer, RenderPass, UnrealBloomPass, OutputPass, Reflector;
 
 try {
   THREE = await import('three');
   ({ OrbitControls } = await import('three/addons/controls/OrbitControls.js'));
   ({ RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js'));
   ({ RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js'));
+  ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
+  ({ EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js'));
+  ({ RenderPass } = await import('three/addons/postprocessing/RenderPass.js'));
+  ({ UnrealBloomPass } = await import('three/addons/postprocessing/UnrealBloomPass.js'));
+  ({ OutputPass } = await import('three/addons/postprocessing/OutputPass.js'));
+  ({ Reflector } = await import('three/addons/objects/Reflector.js'));
 } catch (err) {
   document.querySelectorAll('.gl-fallback').forEach(el => el.style.display = 'flex');
+  document.getElementById('loader').classList.add('done');
   throw err;
 }
 
-/* ================= shared ================= */
+/* model config — Khronos CarConcept: length on Z, nose +Z → rotate nose to +X */
+const MODEL_URL = './models/kitt-concept.glb';
+const MODEL_CFG = { rotY: Math.PI / 2, frontSign: 1 };
+
 const viewers = [];
 
 const M = {
-  paint:  new THREE.MeshPhysicalMaterial({ color:0x0b0b0e, metalness:0.85, roughness:0.32, clearcoat:1, clearcoatRoughness:0.12 }),
-  glass:  new THREE.MeshPhysicalMaterial({ color:0x060608, metalness:0.2, roughness:0.06, transparent:true, opacity:0.9, clearcoat:1 }),
   dark:   new THREE.MeshStandardMaterial({ color:0x101014, metalness:0.6, roughness:0.5 }),
   rubber: new THREE.MeshStandardMaterial({ color:0x0a0a0c, roughness:0.92 }),
   alloy:  new THREE.MeshStandardMaterial({ color:0x9a9aa2, metalness:0.95, roughness:0.28 }),
@@ -352,156 +376,230 @@ function makeStage(canvasId, o = {}) {
   const canvas = document.getElementById(canvasId);
   const wrap = canvas.parentElement;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.12;
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x050507, o.fogNear ?? 15, o.fogFar ?? 32);
-  const camera = new THREE.PerspectiveCamera(o.fov ?? 40, 1, 0.1, 120);
+  if (o.fog !== false) scene.fog = new THREE.Fog(0x050507, o.fogNear ?? 15, o.fogFar ?? 34);
+  const camera = new THREE.PerspectiveCamera(o.fov ?? 40, 1, 0.1, 150);
   camera.position.set(...(o.cam ?? [5.4, 2.4, 6.4]));
   const controls = new OrbitControls(camera, canvas);
   controls.target.set(...(o.target ?? [0, 0.7, 0]));
   controls.enableDamping = true; controls.dampingFactor = 0.06;
   controls.enablePan = false;
-  controls.minDistance = o.min ?? 3.2; controls.maxDistance = o.max ?? 15;
+  controls.minDistance = o.min ?? 3.2; controls.maxDistance = o.max ?? 16;
   controls.maxPolarAngle = 1.48;
-  controls.autoRotate = !REDUCED; controls.autoRotateSpeed = o.spin ?? 0.9;
+  controls.autoRotate = !REDUCED && (o.spin ?? 0.9) > 0;
+  controls.autoRotateSpeed = o.spin ?? 0.9;
 
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
   scene.add(new THREE.HemisphereLight(0x8a9bbd, 0x050505, 0.5));
-  const key = new THREE.DirectionalLight(0xffffff, 2.0); key.position.set(6, 9, 4); scene.add(key);
-  const rim = new THREE.PointLight(RED, 120, 45, 2); rim.position.set(-7, 3.5, -5); scene.add(rim);
-  const fill = new THREE.PointLight(0x2a3cff, 55, 45, 2); fill.position.set(6, 2, -6); scene.add(fill);
+  const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(6, 9, 4); scene.add(key);
+  const rim = new THREE.PointLight(RED, 130, 48, 2); rim.position.set(-7, 3.5, -5); scene.add(rim);
+  const fill = new THREE.PointLight(0x2a3cff, 60, 48, 2); fill.position.set(6, 2, -6); scene.add(fill);
 
-  const v = { canvas, wrap, renderer, scene, camera, controls, visible:false, update:null,
+  let composer = null;
+  if (o.bloom && !REDUCED) {
+    composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.55, 0.78));
+    composer.addPass(new OutputPass());
+  }
+
+  const v = { canvas, wrap, renderer, scene, camera, controls, composer,
+    visible:false, update:null, camTween:null, hotspots:null,
+    render() {
+      if (this.composer) this.composer.render();
+      else this.renderer.render(this.scene, this.camera);
+    },
     resize() {
       const w = wrap.clientWidth, h = wrap.clientHeight;
       if (!w || !h) return;
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
+      if (composer) composer.setSize(w, h);
+    },
+    flyTo(pos, tgt, dur = 1.6) {
+      this.camTween = { p0:this.camera.position.clone(), p1:new THREE.Vector3(...pos),
+                        t0:this.controls.target.clone(), t1:new THREE.Vector3(...tgt), t:0, dur };
     } };
+  controls.addEventListener('start', () => { v.camTween = null; });
   viewers.push(v);
   return v;
 }
 
-function addGround(scene, r = 18) {
+function addGround(scene, r = 18, gridOpacity = 0.45) {
   const g = new THREE.Mesh(
     new THREE.CircleGeometry(r, 48),
     new THREE.MeshStandardMaterial({ color:0x070709, roughness:0.95, metalness:0 }));
   g.rotation.x = -Math.PI / 2; scene.add(g);
   const grid = new THREE.GridHelper(r * 2, Math.round(r * 1.6), 0x3a1212, 0x14151b);
   grid.position.y = 0.002;
-  grid.material.transparent = true; grid.material.opacity = 0.45;
+  grid.material.transparent = true; grid.material.opacity = gridOpacity;
   scene.add(grid);
 }
 
-/* ================= hero car ================= */
-function buildCar() {
-  const car = new THREE.Group();
-  const parts = [];
-  const reg = (obj, away) => {
-    obj.userData.home = obj.position.clone();
-    obj.userData.away = obj.position.clone().add(away);
-    parts.push(obj);
-  };
+function addMirrorFloor(scene, r = 16) {
+  const reflector = new Reflector(new THREE.CircleGeometry(r, 48), {
+    clipBias: 0.003, textureWidth: 512, textureHeight: 512, color: 0x8a8a92 });
+  reflector.rotation.x = -Math.PI / 2; scene.add(reflector);
+  const dim = new THREE.Mesh(new THREE.CircleGeometry(r, 48),
+    new THREE.MeshBasicMaterial({ color:0x050507, transparent:true, opacity:0.58, depthWrite:false }));
+  dim.rotation.x = -Math.PI / 2; dim.position.y = 0.002; scene.add(dim);
+  const grid = new THREE.GridHelper(r * 2, 26, 0x3a1212, 0x14151b);
+  grid.position.y = 0.004; grid.material.transparent = true; grid.material.opacity = 0.3;
+  scene.add(grid);
+}
 
-  // body — extruded side profile
-  const bs = new THREE.Shape();
-  bs.moveTo(-2.28, 0.40);
-  bs.lineTo(-2.34, 0.78);
-  bs.quadraticCurveTo(-2.28, 0.92, -1.90, 0.96);
-  bs.lineTo(-0.90, 1.00);
-  bs.lineTo(0.55, 0.98);
-  bs.quadraticCurveTo(1.15, 0.94, 1.70, 0.74);
-  bs.quadraticCurveTo(2.15, 0.60, 2.32, 0.50);
-  bs.quadraticCurveTo(2.40, 0.44, 2.32, 0.38);
-  bs.lineTo(-2.28, 0.40);
-  const bodyGeo = new THREE.ExtrudeGeometry(bs,
-    { depth:1.55, bevelEnabled:true, bevelThickness:0.14, bevelSize:0.14, bevelSegments:4, steps:1 });
-  bodyGeo.translate(0, 0, -0.775);
-  const body = new THREE.Mesh(bodyGeo, M.paint);
-  car.add(body); reg(body, new THREE.Vector3(0, 0, 0));
+/* ================= HERO ================= */
+const CAMS = {
+  hero34:  { p:[5.9, 2.1, 4.4],  t:[0, 0.65, 0] },
+  front:   { p:[6.6, 1.35, 1.7], t:[0.4, 0.6, 0] },
+  profile: { p:[0.2, 1.25, 7.6], t:[0, 0.6, 0] },
+  rear:    { p:[-6.4, 1.8, -2.1],t:[-0.3, 0.65, 0] },
+  top:     { p:[0.6, 8.8, 0.6],  t:[0, 0.3, 0] },
+};
 
-  // glass canopy
-  const cs = new THREE.Shape();
-  cs.moveTo(-1.80, 0.90);
-  cs.quadraticCurveTo(-1.20, 1.02, -0.80, 1.30);
-  cs.quadraticCurveTo(-0.35, 1.46, 0.10, 1.40);
-  cs.quadraticCurveTo(0.60, 1.32, 1.00, 0.96);
-  cs.lineTo(1.02, 0.90);
-  cs.lineTo(-1.80, 0.90);
-  const canGeo = new THREE.ExtrudeGeometry(cs,
-    { depth:1.25, bevelEnabled:true, bevelThickness:0.10, bevelSize:0.10, bevelSegments:3 });
-  canGeo.translate(0, 0, -0.625);
-  const canopy = new THREE.Mesh(canGeo, M.glass);
-  car.add(canopy); reg(canopy, new THREE.Vector3(0, 1.5, 0));
+const hero = makeStage('gl-hero', { bloom:true, fog:false, spin:0.55, max:18,
+  cam:[11, 5.5, 12], target:[0, 0.65, 0], fov:38 });
+addMirrorFloor(hero.scene);
+hero.controls.autoRotateSpeed = 0.55;
 
-  // battery tray (revealed in exploded view)
-  const battG = new THREE.Group();
-  battG.add(new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.16, 1.5), M.dark));
-  battG.add(new THREE.Mesh(new THREE.BoxGeometry(3.44, 0.035, 1.54), M.red));
-  battG.position.set(0, 0.30, 0);
-  car.add(battG); reg(battG, new THREE.Vector3(0, -0.20, 0));
-
-  // wheels
-  function wheel(x, z) {
-    const w = new THREE.Group();
-    w.add(new THREE.Mesh(new THREE.TorusGeometry(0.30, 0.13, 14, 30), M.rubber));
-    const rimG = new THREE.CylinderGeometry(0.20, 0.20, 0.10, 20); rimG.rotateX(Math.PI / 2);
-    w.add(new THREE.Mesh(rimG, M.alloy));
-    for (let i = 0; i < 5; i++) {
-      const sp = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.34, 0.115), M.dark);
-      sp.rotation.z = i * Math.PI / 5; w.add(sp);
+function frameModel(model) {
+  model.rotation.y = MODEL_CFG.rotY + (MODEL_CFG.frontSign < 0 ? Math.PI : 0);
+  let box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const len = Math.max(size.x, size.z);
+  model.scale.setScalar(4.6 / len);
+  box = new THREE.Box3().setFromObject(model);
+  const c = box.getCenter(new THREE.Vector3());
+  model.position.x -= c.x; model.position.z -= c.z;
+  model.position.y -= box.min.y;
+  model.traverse(o => {
+    if (o.isMesh) {
+      o.material.envMapIntensity = 0.9;
     }
-    const capG = new THREE.CylinderGeometry(0.045, 0.045, 0.12, 12); capG.rotateX(Math.PI / 2);
-    w.add(new THREE.Mesh(capG, M.red));
-    w.position.set(x, 0.43, z);
-    return w;
-  }
-  [[1.42, 0.88], [1.42, -0.88], [-1.42, 0.88], [-1.42, -0.88]].forEach(([x, z]) => {
-    const w = wheel(x, z); car.add(w);
-    reg(w, new THREE.Vector3(0, 0, Math.sign(z) * 0.65));
   });
+  return { halfLen: 2.3, height: box.max.y - box.min.y };
+}
 
-  // scanner — the signature
+let heroEye = null, heroGlowMat = null;
+function prepModel(model) {
+  model.traverse(o => {
+    const nm = o.name || '';
+    if (/license plate/i.test(nm)) o.visible = false;
+    if (o.isMesh) {
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => {
+        if (/carmine/i.test(m.name || '')) m.color.set(0x0a0a0d); // KITT black, clearcoat intact
+      });
+    }
+  });
+}
+function dressCar(stage, dims) {
+  // front scanner — the signature sweeping eye
   const scanG = new THREE.Group();
   scanG.add(new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.055, 1.5), M.dark));
   const eye = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.032, 0.15), M.redHot);
   const eyeLight = new THREE.PointLight(RED, 18, 5, 2);
-  eyeLight.position.set(0.12, 0.04, 0);
-  eye.add(eyeLight);
+  eyeLight.position.set(0.12, 0.04, 0); eye.add(eyeLight);
   scanG.add(eye);
-  scanG.position.set(2.30, 0.55, 0);
-  car.add(scanG); reg(scanG, new THREE.Vector3(0.9, 0.15, 0));
-
+  scanG.position.set(dims.halfLen + 0.26, 0.68, 0);
+  stage.scene.add(scanG);
+  heroEye = eye;
+  // rear full-width light bar
+  const rear = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 1.4), M.red);
+  rear.position.set(-dims.halfLen + 0.24, 1.0, 0);
+  stage.scene.add(rear);
   // underglow
   const gc = document.createElement('canvas'); gc.width = gc.height = 256;
   const gg = gc.getContext('2d');
   const grad = gg.createRadialGradient(128, 128, 10, 128, 128, 128);
   grad.addColorStop(0, 'rgba(255,46,46,0.5)'); grad.addColorStop(0.6, 'rgba(255,46,46,0.16)'); grad.addColorStop(1, 'rgba(255,46,46,0)');
   gg.fillStyle = grad; gg.fillRect(0, 0, 256, 256);
-  const ug = new THREE.Mesh(new THREE.PlaneGeometry(5.8, 3.0),
-    new THREE.MeshBasicMaterial({ map:new THREE.CanvasTexture(gc), transparent:true, depthWrite:false }));
-  ug.rotation.x = -Math.PI / 2; ug.position.y = 0.02; car.add(ug);
-  const ugLight = new THREE.PointLight(RED, 26, 7, 2); ugLight.position.set(0, 0.4, 0); car.add(ugLight);
-
-  let explodeT = 0, explodeTarget = 0;
-  return {
-    group: car,
-    setExplode(v) { explodeTarget = v; },
-    update(t, dt) {
-      eye.position.z = Math.sin(t * 2.6) * 0.62;
-      ug.material.opacity = 0.85 + Math.sin(t * 2.2) * 0.15;
-      explodeT += (explodeTarget - explodeT) * Math.min(1, dt * 4);
-      const e = explodeT * explodeT * (3 - 2 * explodeT);
-      for (const p of parts) p.position.lerpVectors(p.userData.home, p.userData.away, e);
-    }
-  };
+  heroGlowMat = new THREE.MeshBasicMaterial({ map:new THREE.CanvasTexture(gc), transparent:true, depthWrite:false });
+  const ug = new THREE.Mesh(new THREE.PlaneGeometry(dims.halfLen * 2 + 1.4, 3.0), heroGlowMat);
+  ug.rotation.x = -Math.PI / 2; ug.position.y = 0.02; stage.scene.add(ug);
+  const ugLight = new THREE.PointLight(RED, 26, 7, 2); ugLight.position.set(0, 0.4, 0); stage.scene.add(ugLight);
 }
 
+hero.update = (t) => {
+  if (heroEye) heroEye.position.z = Math.sin(t * 2.6) * 0.62;
+  if (heroGlowMat) heroGlowMat.opacity = 0.85 + Math.sin(t * 2.2) * 0.15;
+};
+
+document.querySelectorAll('.cambtn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.cambtn').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    const c = CAMS[b.dataset.cam];
+    if (c) hero.flyTo(c.p, c.t, 1.4);
+  });
+});
+
+const lfill = document.getElementById('lfill'), ltxt = document.getElementById('ltxt');
+function setLoad(frac, txt) {
+  lfill.style.width = Math.round(frac * 100) + '%';
+  if (txt) ltxt.textContent = txt;
+}
+
+(async function loadHeroModel() {
+  try {
+    setLoad(0.05, 'WARMING UP THE TURBINES');
+    const manager = new THREE.LoadingManager();
+    manager.onProgress = (u, l, t) => setLoad(0.05 + 0.9 * (l / t), 'ASSEMBLING KITT');
+    const gltf = await new GLTFLoader(manager).loadAsync(MODEL_URL);
+    setLoad(0.97, 'FINAL CALIBRATION');
+    const dims = frameModel(gltf.scene);
+    prepModel(gltf.scene);
+    hero.scene.add(gltf.scene);
+    dressCar(hero, dims);
+    // intro dolly
+    if (!REDUCED) hero.flyTo(CAMS.hero34.p, CAMS.hero34.t, 2.4);
+    else { hero.camera.position.set(...CAMS.hero34.p); hero.controls.target.set(...CAMS.hero34.t); }
+    await new Promise(r => setTimeout(r, 350));
+    document.getElementById('loader').classList.add('done');
+  } catch (err) {
+    console.error('model load failed', err);
+    ltxt.textContent = 'CONCEPT OFFLINE — PLEASE RELOAD';
+    const fb = document.querySelector('#gl-hero').parentElement.querySelector('.gl-fallback');
+    fb.querySelector('#heroFallbackTxt').textContent = 'CONCEPT MODEL OFFLINE — PLEASE RELOAD';
+    fb.style.display = 'flex';
+  }
+})();
+
 /* ================= sub-assemblies ================= */
+function anchor(parent, x, y, z) {
+  const o = new THREE.Object3D(); o.position.set(x, y, z); parent.add(o); return o;
+}
+function addHotspots(stage, list) {
+  const layer = document.createElement('div');
+  layer.className = 'hotspots';
+  stage.wrap.appendChild(layer);
+  stage.hotspots = list.map(it => {
+    const el = document.createElement('div');
+    el.className = 'hotspot';
+    el.innerHTML = '<span class="hdot"></span><span class="hlabel"></span>';
+    el.querySelector('.hlabel').textContent = it.label;
+    layer.appendChild(el);
+    return { el, obj: it.obj };
+  });
+}
+const _pv = new THREE.Vector3();
+function updateHotspots(v) {
+  if (!v.hotspots || !v.visible) return;
+  const w = v.wrap.clientWidth, h = v.wrap.clientHeight;
+  for (const hs of v.hotspots) {
+    hs.obj.getWorldPosition(_pv); _pv.project(v.camera);
+    const behind = _pv.z > 1 || _pv.z < -1;
+    const x = (_pv.x * 0.5 + 0.5) * w, y = (-_pv.y * 0.5 + 0.5) * h;
+    hs.el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) translate(-4px,-4px)';
+    hs.el.style.opacity = behind ? '0' : '1';
+  }
+}
+
 function buildBattery() {
   const g = new THREE.Group();
   g.add(new THREE.Mesh(new RoundedBoxGeometry(4.6, 0.24, 2.1, 4, 0.07), M.dark));
@@ -521,7 +619,21 @@ function buildBattery() {
   }
   const skirt = new THREE.Mesh(new THREE.BoxGeometry(4.64, 0.04, 2.14), M.red);
   skirt.position.y = -0.10; g.add(skirt);
-  return { group: g, update(t) {
+  [-1, 1].forEach(s => {
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.08, 0.12), M.alloy);
+    rail.position.set(0, -0.02, s * 1.0); g.add(rail);
+  });
+  const boltGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.07, 10);
+  [[-2.15, 0.9], [2.15, 0.9], [-2.15, -0.9], [2.15, -0.9], [-0.7, 0.9], [0.7, 0.9], [-0.7, -0.9], [0.7, -0.9]]
+    .forEach(([x, z]) => {
+      const b = new THREE.Mesh(boltGeo, M.alloy); b.position.set(x, 0.15, z); g.add(b);
+    });
+  const hotspots = [
+    { obj: anchor(g, 0, 0.42, 0), label: '4,680 CELLS · NMC 811' },
+    { obj: anchor(g, 1.6, 0.36, 0.39), label: '800V COPPER BUSBAR' },
+    { obj: anchor(g, -2.25, -0.05, 0.9), label: 'STRUCTURAL TRAY' },
+  ];
+  return { group: g, hotspots, update(t) {
     g.rotation.y = t * 0.22;
     busMat.emissiveIntensity = 1.7 + Math.sin(t * 3) * 0.7;
   }};
@@ -552,7 +664,25 @@ function buildMotors() {
   istripe.position.copy(inv.position); g.add(istripe);
   const axleG = new THREE.CylinderGeometry(0.05, 0.05, 2.4, 10); axleG.rotateZ(Math.PI / 2);
   const axle = new THREE.Mesh(axleG, M.alloy); axle.position.y = -0.05; g.add(axle);
-  return { group: g, update(t, dt) {
+  [-1, 1].forEach(s => {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(2.9, 0.09, 0.14), M.dark);
+    arm.position.set(0, -0.28, s * 0.55); g.add(arm);
+  });
+  const hvMat = new THREE.MeshStandardMaterial({ color:0xcc4400, roughness:0.6 });
+  function hvCable(pts) {
+    const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)));
+    return new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.035, 8), hvMat);
+  }
+  g.add(hvCable([[0.35, 0.12, 0.25], [0.8, 0.42, 0.45], [1.35, 0.25, 0.3]]));
+  g.add(hvCable([[0.35, 0.12, -0.25], [0.8, 0.42, -0.45], [1.35, 0.25, -0.3]]));
+  g.add(hvCable([[-0.35, 0.12, 0.25], [-0.8, 0.42, 0.45], [-1.3, 0.3, 0.3]]));
+  g.add(hvCable([[-0.35, 0.12, -0.25], [-0.8, 0.42, -0.45], [-1.3, 0.3, -0.3]]));
+  const hotspots = [
+    { obj: anchor(g, -1.3, 0.58, 0), label: 'REAR · 720 HP' },
+    { obj: anchor(g, 1.35, 0.44, 0), label: 'FRONT · 300 HP' },
+    { obj: anchor(g, 0.02, 0.32, 0), label: 'SiC INVERTER' },
+  ];
+  return { group: g, hotspots, update(t, dt) {
     spinners.forEach(s => s.rotation.z += dt * 9);
     g.rotation.y = Math.sin(t * 0.18) * 0.4;
   }};
@@ -574,6 +704,8 @@ function buildSensors() {
       new THREE.MeshBasicMaterial({ color:RED, transparent:true, opacity:0.5 }));
     r.rotation.x = Math.PI / 2; r.position.y = 0.06; g.add(r); rings.push(r);
   }
+  const coneMat = new THREE.MeshBasicMaterial({ color:RED, transparent:true, opacity:0.09,
+    side:THREE.DoubleSide, depthWrite:false });
   [[0.85, 0.55], [0.85, -0.55], [-0.85, 0.55], [-0.85, -0.55]].forEach(([x, z]) => {
     const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.22, 10), M.dark);
     stalk.position.set(x, 0.20, z); g.add(stalk);
@@ -582,7 +714,18 @@ function buildSensors() {
     const lens = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 10), M.redHot);
     lens.position.set(x + Math.sign(x) * 0.08, 0.36, z); g.add(lens);
   });
-  return { group: g, update(t) {
+  [0.55, -0.55].forEach(z => {
+    const cg = new THREE.ConeGeometry(0.55, 1.5, 24, 1, true);
+    cg.rotateZ(-Math.PI / 2 - 0.18);
+    const cone = new THREE.Mesh(cg, coneMat);
+    cone.position.set(1.75, 0.30, z); g.add(cone);
+  });
+  const hotspots = [
+    { obj: anchor(g, 0, 0.5, 0), label: 'LIDAR · 200 M' },
+    { obj: anchor(g, 1.05, 0.12, 0), label: '360° SWEEP' },
+    { obj: anchor(g, -0.85, 0.55, 0.55), label: 'CORNER RADAR ×4' },
+  ];
+  return { group: g, hotspots, update(t) {
     bar.rotation.y = t * 2.2;
     rings.forEach((r, i) => {
       const p = (t * 0.45 + i / 3) % 1;
@@ -596,6 +739,10 @@ function buildSensors() {
 
 function buildCore() {
   const g = new THREE.Group();
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.78, 0.85, 0.14, 36), M.dark);
+  ped.position.y = -0.78; g.add(ped);
+  const trim = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.018, 8, 48), M.red);
+  trim.rotation.x = Math.PI / 2; trim.position.y = -0.71; g.add(trim);
   const coreGeo = new THREE.IcosahedronGeometry(0.55, 1);
   const core = new THREE.Mesh(coreGeo,
     new THREE.MeshStandardMaterial({ color:0x0c0c11, metalness:0.7, roughness:0.35 }));
@@ -610,6 +757,14 @@ function buildCore() {
     ring.rotation.x = Math.PI / 2 + tx; ring.rotation.y = ty;
     g.add(ring); rings.push(ring);
   });
+  const sats = new THREE.Group();
+  for (let i = 0; i < 3; i++) {
+    const s = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 0.09), M.red);
+    const a = i * Math.PI * 2 / 3;
+    s.position.set(Math.cos(a) * 1.6, 0.1 * (i - 1), Math.sin(a) * 1.6);
+    sats.add(s);
+  }
+  g.add(sats);
   const N = 140, pos = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
     const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), rr = 1.35 + Math.random() * 0.9;
@@ -623,37 +778,29 @@ function buildCore() {
     new THREE.PointsMaterial({ color:0xff5a5a, size:0.032, transparent:true, opacity:0.8 }));
   g.add(pts);
   const pl = new THREE.PointLight(RED, 40, 14, 2); g.add(pl);
-  return { group: g, update(t) {
+  const hotspots = [
+    { obj: anchor(g, 0, 0.8, 0), label: 'NEURAL CORE' },
+    { obj: anchor(g, 1.18, 0.35, 0), label: 'REDUNDANT RING BUS' },
+    { obj: anchor(g, 0.65, -0.68, 0.35), label: 'ISOLATED MOUNT' },
+  ];
+  return { group: g, hotspots, update(t) {
     const p = 1 + Math.sin(t * 2.4) * 0.035;
     core.scale.setScalar(p); wire.scale.setScalar(p * 1.02);
     rings[0].rotation.z = t * 0.7; rings[1].rotation.z = -t * 0.5;
+    sats.rotation.y = -t * 0.4;
     pts.rotation.y = t * 0.12;
     pl.intensity = 34 + Math.sin(t * 2.4) * 10;
   }};
 }
 
-/* ================= assemble stages ================= */
-const hero = makeStage('gl-hero', { cam:[5.6, 2.3, 6.6], target:[0, 0.75, 0], fov:38, spin:0.7, max:13 });
-addGround(hero.scene);
-const car = buildCar();
-hero.scene.add(car.group);
-hero.update = (t, dt) => car.update(t, dt);
-
-const exBtn = document.getElementById('explodeBtn');
-let exOn = false;
-exBtn.addEventListener('click', () => {
-  exOn = !exOn;
-  car.setExplode(exOn ? 1 : 0);
-  exBtn.classList.toggle('on', exOn);
-  exBtn.textContent = exOn ? 'ASSEMBLE' : 'EXPLODED VIEW';
-});
-
+/* ================= assemble sub-stages ================= */
 function subStage(id, builder, cam, target) {
   const st = makeStage(id, { cam, target, spin:1.0, min:2.4, max:12 });
-  addGround(st.scene, 10);
+  addGround(st.scene, 10, 0.35);
   const b = builder();
   st.scene.add(b.group);
   st.update = (t, dt) => b.update(t, dt);
+  addHotspots(st, b.hotspots);
   return st;
 }
 subStage('gl-battery', buildBattery, [4.8, 3.0, 4.8], [0, 0.2, 0]);
@@ -671,21 +818,33 @@ const vio = new IntersectionObserver(es => {
 viewers.forEach(v => { v.resize(); vio.observe(v.wrap); });
 addEventListener('resize', () => viewers.forEach(v => v.resize()));
 
+function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 const clock = new THREE.Clock();
+
 if (REDUCED) {
-  (function once() {
-    viewers.forEach(v => { v.resize(); v.controls.update(); v.update && v.update(0.6, 0.016); v.renderer.render(v.scene, v.camera); });
-  })();
+  viewers.forEach(v => {
+    v.visible = true; v.resize(); v.controls.update();
+    if (v.update) v.update(0.6, 0.016);
+    v.render(); updateHotspots(v);
+  });
 } else {
-  (function loop() {
-    requestAnimationFrame(loop);
+  (function step() {
+    requestAnimationFrame(step);
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
     for (const v of viewers) {
       if (!v.visible) continue;
+      if (v.camTween) {
+        const tw = v.camTween; tw.t += dt / tw.dur;
+        const e = easeInOut(Math.min(tw.t, 1));
+        v.camera.position.lerpVectors(tw.p0, tw.p1, e);
+        v.controls.target.lerpVectors(tw.t0, tw.t1, e);
+        if (tw.t >= 1) v.camTween = null;
+      }
       v.controls.update();
-      v.update && v.update(t, dt);
-      v.renderer.render(v.scene, v.camera);
+      if (v.update) v.update(t, dt);
+      v.render();
+      updateHotspots(v);
     }
   })();
 }
