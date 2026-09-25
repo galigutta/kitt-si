@@ -428,7 +428,7 @@ function makeStage(canvasId, o = {}) {
       this.camTween = { p0:this.camera.position.clone(), p1:new THREE.Vector3(...pos),
                         t0:this.controls.target.clone(), t1:new THREE.Vector3(...tgt), t:0, dur };
     } };
-  controls.addEventListener('start', () => { v.camTween = null; });
+  controls.addEventListener('start', () => { v.camTween = null; v.controls.autoRotate = v.orbitEnabled; });
   viewers.push(v);
   return v;
 }
@@ -497,6 +497,12 @@ function prepModel(model) {
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       mats.forEach(m => {
         if (/carmine/i.test(m.name || '')) m.color.set(0x0a0a0d); // KITT black, clearcoat intact
+        // black out the glasshouse: no see-through cabin from the top view
+        if (m.transparent || m.transmission > 0 || (m.opacity !== undefined && m.opacity < 1)) {
+          m.transparent = false; m.opacity = 1; m.transmission = 0;
+          m.color.set(0x07080c); m.metalness = 0.85; m.roughness = 0.12;
+          m.depthWrite = true;
+        }
       });
     }
   });
